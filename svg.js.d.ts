@@ -29,6 +29,8 @@ interface CSSStyleDeclarationWithVars extends KebabCSSStyleDeclaration {
 }
 
 declare module '@svgdotjs/svg.js' {
+  export interface SVGDotJsEventMap extends HTMLElementEventMap {}
+  
   function SVG(): Svg
   /**
    * @param selectorOrHtml pass in a css selector or an html/svg string
@@ -48,31 +50,32 @@ declare module '@svgdotjs/svg.js' {
   function prepare(element: HTMLElement): void
   function getClass(name: string): Element
 
-  function on(
-    el: Node | Window,
-    events: string,
-    cb: EventListener,
-    binbind?: any,
+  function on<K extends keyof SVGDotJsEventMap, El extends Node | Window>(
+    el: El,
+    event: K,
+    cb: (this: El, ev: SVGDotJsEventMap[K]) => any,
     options?: AddEventListenerOptions
-  ): void
-  function on(
-    el: Node | Window,
-    events: Event[],
-    cb: EventListener,
+  ): void;
+
+  function on<El extends Node | Window>(
+    el: El,
+    events: string | string[],
+    cb: (this: El, ev: Event) => any,
     binbind?: any,
     options?: AddEventListenerOptions
   ): void
 
-  function off(
-    el: Node | Window,
-    events?: string,
-    cb?: EventListener | number,
+  function off<K extends keyof SVGDotJsEventMap, El extends Node | Window>(
+    el: El,
+    events?: K,
+    cb?: (this: El, ev: SVGDotJsEventMap[K]) => any,
     options?: AddEventListenerOptions
   ): void
-  function off(
-    el: Node | Window,
-    events?: Event[],
-    cb?: EventListener | number,
+
+  function off<El extends Node | Window>(
+    el: El,
+    events?: string | string[],
+    cb?: (this: El, ev: any) => any,
     options?: AddEventListenerOptions
   ): void
 
@@ -705,15 +708,26 @@ declare module '@svgdotjs/svg.js' {
     getEventHolder(): this | Node
     getEventTarget(): this | Node
 
-    on(
-      events: string | Event[],
-      cb: EventListener,
+    on<K extends keyof SVGDotJsEventMap>(
+      events: K,
+      cb: (ev: SVGDotJsEventMap[K]) => any,
       binbind?: any,
       options?: AddEventListenerOptions
     ): this
+    on(
+      events: string | string[],
+      cb: (ev: Event) => any,
+      binbind?: any,
+      options?: AddEventListenerOptions
+    ): this
+    off<K extends keyof SVGDotJsEventMap>(
+      events?: K,
+      cb?: (ev: any) => any,
+      options?: AddEventListenerOptions
+    ): this
     off(
-      events?: string | Event[],
-      cb?: EventListener | number,
+      events?: string | string[],
+      cb?: (ev: any) => any,
       options?: AddEventListenerOptions
     ): this
 
